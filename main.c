@@ -14,6 +14,8 @@
 #define ROWS 512
 #define COLS 512
 
+#define THREAD_NUM 8.0
+
 static void write_to_ppm(FILE *outfile, uint8_t *pixels,
                          int width, int height)
 {
@@ -59,10 +61,10 @@ int main()
 //               rectangulars, spheres, lights, &view, ROWS, COLS);
   
 /*****create parameter which thread used****/
-    threadpara =(struct parameter*)malloc(4*sizeof(struct parameter));
-    for(int i =0; i<4; i++) {
-        threadpara[i].begin_col =COLS*((double)i/4.0);
-        threadpara[i].finish_col =COLS*((double)(i+1.0)/4.0);
+    threadpara =(struct parameter*)malloc(THREAD_NUM*sizeof(struct parameter));
+    for(int i =0; i<THREAD_NUM; i++) {
+        threadpara[i].begin_col =COLS*((double)i/THREAD_NUM);
+        threadpara[i].finish_col =COLS*((double)(i+1.0)/THREAD_NUM);
         threadpara[i].pixels =pixels;
         threadpara[i].lights =lights;
         threadpara[i].rectangulars = rectangulars;
@@ -72,11 +74,11 @@ int main()
         threadpara[i].width = ROWS;
         threadpara[i].height = COLS;
     }
-    threadx=(pthread_t*)malloc(4*sizeof(pthread_t));
-    for(int i=0; i<4; i++) {
+    threadx=(pthread_t*)malloc(THREAD_NUM*sizeof(pthread_t));
+    for(int i=0; i<THREAD_NUM; i++) {
         pthread_create(&threadx[i],NULL,&raytracing,&threadpara[i]);
 	}
-	for(int i=0;i<4;i++){
+	for(int i=0;i<THREAD_NUM;i++){
 		pthread_join(threadx[i],NULL);
     }
 
